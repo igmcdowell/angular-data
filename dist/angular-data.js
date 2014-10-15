@@ -3506,7 +3506,13 @@ function loadRelations(resourceName, instance, relations, options) {
       if (DS.utils.contains(relations, relationName)) {
         var task;
         var params = {};
-        params[def.foreignKey] = instance[definition.idAttribute];
+
+        if(def.foreignKey == '$$array') {
+          params[def.foreignArrayKey] = instance[definition.idAttribute]
+          params[def.foreignKey] = def.foreignArrayKey
+        } else {
+          params[def.foreignKey] = instance[definition.idAttribute];  
+        }
 
         if (def.type === 'hasMany' && params[def.foreignKey]) {
           task = DS.findAll(relationName, params, options);
@@ -4095,13 +4101,20 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
     where: '',
     limit: '',
     orderBy: '',
-    sort: ''
+    sort: '',
+    $$array: ''
   };
 
   if (this.utils.isObject(params.where)) {
     where = params.where;
   } else {
     where = {};
+  }
+
+  if (params.$$array) {
+    var arrayKey = params.$$array;
+    where[arrayKey] = {'contains': params[arrayKey]};
+    delete params[arrayKey];
   }
 
   if (options.allowSimpleWhere) {

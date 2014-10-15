@@ -19,13 +19,20 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
     where: '',
     limit: '',
     orderBy: '',
-    sort: ''
+    sort: '',
+    $$array: ''
   };
 
   if (this.utils.isObject(params.where)) {
     where = params.where;
   } else {
     where = {};
+  }
+
+  if (params.$$array) {
+    var arrayKey = params.$$array;
+    where[arrayKey] = {'contains': params[arrayKey]};
+    delete params[arrayKey];
   }
 
   if (options.allowSimpleWhere) {

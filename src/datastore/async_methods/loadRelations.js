@@ -99,7 +99,13 @@ function loadRelations(resourceName, instance, relations, options) {
       if (DS.utils.contains(relations, relationName)) {
         var task;
         var params = {};
-        params[def.foreignKey] = instance[definition.idAttribute];
+
+        if(def.foreignKey == '$$array') {
+          params[def.foreignArrayKey] = instance[definition.idAttribute]
+          params[def.foreignKey] = def.foreignArrayKey
+        } else {
+          params[def.foreignKey] = instance[definition.idAttribute];  
+        }
 
         if (def.type === 'hasMany' && params[def.foreignKey]) {
           task = DS.findAll(relationName, params, options);
