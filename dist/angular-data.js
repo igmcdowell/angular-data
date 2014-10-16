@@ -3508,8 +3508,8 @@ function loadRelations(resourceName, instance, relations, options) {
         var params = {};
 
         if(def.foreignKey == '$$array') {
-          params[def.foreignArrayKey] = instance[definition.idAttribute]
-          params[def.foreignKey] = def.foreignArrayKey
+          params[def.foreignArrayKey] = instance[definition.idAttribute];
+          params[def.foreignKey] = def.foreignArrayKey;
         } else {
           params[def.foreignKey] = instance[definition.idAttribute];  
         }
@@ -5518,6 +5518,7 @@ function defineResource(definition) {
     }
 
     def.getEndpoint = function (attrs, options) {
+      if(options.endpoint) return DSUtils.makePath(options.endpoint);
       var parent = this.parent;
       var parentKey = this.parentKey;
       var item;

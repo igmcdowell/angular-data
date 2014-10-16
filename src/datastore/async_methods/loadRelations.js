@@ -101,8 +101,8 @@ function loadRelations(resourceName, instance, relations, options) {
         var params = {};
 
         if(def.foreignKey == '$$array') {
-          params[def.foreignArrayKey] = instance[definition.idAttribute]
-          params[def.foreignKey] = def.foreignArrayKey
+          params[def.foreignArrayKey] = instance[definition.idAttribute];
+          params[def.foreignKey] = def.foreignArrayKey;
         } else {
           params[def.foreignKey] = instance[definition.idAttribute];  
         }
