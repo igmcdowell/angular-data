@@ -19,6 +19,9 @@ function _linkAll(definition, linked, relations) {
     } else if (def.type === 'hasMany') {
       DS.utils.forEach(linked, function (injectedItem) {
         var params = {};
+        if(def.isArrayKey) {
+          params['$$array'] = def.foreignKey;
+        } 
         params[def.foreignKey] = injectedItem[definition.idAttribute];
         injectedItem[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
       });

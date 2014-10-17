@@ -3506,13 +3506,11 @@ function loadRelations(resourceName, instance, relations, options) {
       if (DS.utils.contains(relations, relationName)) {
         var task;
         var params = {};
+        if(def.isArrayKey) {
+          params['$$array'] = def.foreignKey;
+        } 
+        params[def.foreignKey] = instance[definition.idAttribute];  
 
-        if(def.foreignKey == '$$array') {
-          params[def.foreignArrayKey] = instance[definition.idAttribute];
-          params[def.foreignKey] = def.foreignArrayKey;
-        } else {
-          params[def.foreignKey] = instance[definition.idAttribute];  
-        }
 
         if (def.type === 'hasMany' && params[def.foreignKey]) {
           task = DS.findAll(relationName, params, options);
@@ -4112,9 +4110,10 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
   }
 
   if (params.$$array) {
-    var arrayKey = params.$$array;
-    where[arrayKey] = {'contains': params[arrayKey]};
-    delete params[arrayKey];
+    var singleKey = params.$$array;
+    var arrayKey = singleKey + 's'
+    where[arrayKey] = {'contains': params[singleKey]};
+    delete params[singleKey];
   }
 
   if (options.allowSimpleWhere) {
@@ -4167,6 +4166,8 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
               keep = first ? _this.utils.contains(val, attrs[field]) : keep && _this.utils.contains(val, attrs[field]);
             } else if (op === 'notIn') {
               keep = first ? !_this.utils.contains(val, attrs[field]) : keep && !_this.utils.contains(val, attrs[field]);
+            } else if (op === 'contains') {
+              keep = first ? _this.utils.contains(attrs[field], val) : keep && _this.utils.contains(attrs[field], val);
             } else if (op === '|==') {
               keep = first ? (attrs[field] == val) : keep || (attrs[field] == val);
             } else if (op === '|===') {
@@ -4187,7 +4188,7 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
               keep = first ? _this.utils.contains(val, attrs[field]) : keep || _this.utils.contains(val, attrs[field]);
             } else if (op === '|notIn') {
               keep = first ? !_this.utils.contains(val, attrs[field]) : keep || !_this.utils.contains(val, attrs[field]);
-            }
+            } 
             first = false;
           });
         }
@@ -6828,6 +6829,9 @@ function _link(definition, linked, relations) {
         linked[def.localField] = parent;
       }
     } else if (def.type === 'hasMany') {
+      if(def.isArrayKey) {
+        params['$$array'] = def.foreignKey;
+      } 
       params[def.foreignKey] = linked[definition.idAttribute];
       linked[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
     } else if (def.type === 'hasOne') {
@@ -6933,6 +6937,9 @@ function _linkAll(definition, linked, relations) {
     } else if (def.type === 'hasMany') {
       DS.utils.forEach(linked, function (injectedItem) {
         var params = {};
+        if(def.isArrayKey) {
+          params['$$array'] = def.foreignKey;
+        } 
         params[def.foreignKey] = injectedItem[definition.idAttribute];
         injectedItem[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
       });

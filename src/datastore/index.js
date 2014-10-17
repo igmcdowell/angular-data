@@ -30,9 +30,10 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
   }
 
   if (params.$$array) {
-    var arrayKey = params.$$array;
-    where[arrayKey] = {'contains': params[arrayKey]};
-    delete params[arrayKey];
+    var singleKey = params.$$array;
+    var arrayKey = singleKey + 's'
+    where[arrayKey] = {'contains': params[singleKey]};
+    delete params[singleKey];
   }
 
   if (options.allowSimpleWhere) {
@@ -85,6 +86,8 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
               keep = first ? _this.utils.contains(val, attrs[field]) : keep && _this.utils.contains(val, attrs[field]);
             } else if (op === 'notIn') {
               keep = first ? !_this.utils.contains(val, attrs[field]) : keep && !_this.utils.contains(val, attrs[field]);
+            } else if (op === 'contains') {
+              keep = first ? _this.utils.contains(attrs[field], val) : keep && _this.utils.contains(attrs[field], val);
             } else if (op === '|==') {
               keep = first ? (attrs[field] == val) : keep || (attrs[field] == val);
             } else if (op === '|===') {
@@ -105,7 +108,7 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
               keep = first ? _this.utils.contains(val, attrs[field]) : keep || _this.utils.contains(val, attrs[field]);
             } else if (op === '|notIn') {
               keep = first ? !_this.utils.contains(val, attrs[field]) : keep || !_this.utils.contains(val, attrs[field]);
-            }
+            } 
             first = false;
           });
         }

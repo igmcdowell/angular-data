@@ -16,6 +16,9 @@ function _link(definition, linked, relations) {
         linked[def.localField] = parent;
       }
     } else if (def.type === 'hasMany') {
+      if(def.isArrayKey) {
+        params['$$array'] = def.foreignKey;
+      } 
       params[def.foreignKey] = linked[definition.idAttribute];
       linked[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
     } else if (def.type === 'hasOne') {
